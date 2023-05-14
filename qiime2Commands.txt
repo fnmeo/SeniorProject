@@ -1,0 +1,108 @@
++Import ManifestPhred33V2 Paired End Sequences Already Demultiplexed
+
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path /mnt/d/MicrobiomeFiles/ManifestWith \
+  --output-path paired-end-demux.qza \
+  --input-format PairedEndFastqManifestPhred33V2
+
++Summarize import
+
+qiime demux summarize \
+  --i-data paired-end-demux.qza \
+  --o-visualization demux.qzv
+
++denoising using dada2 
+
+qiime dada2 denoise-paired \
+  --i-demultiplexed-seqs paired-end-demux.qza \
+  --p-trunc-len-f 230 \
+  --p-trunc-len-r 225 \
+  --o-representative-sequences asv-sequences-0.qza \
+  --o-table feature-table-0.qza \
+  --o-denoising-stats dada2-stats.qza
+
+qiime feature-table summarize \
+  --i-table table.qza \
+  --o-visualization table.qzv \
+  --m-sample-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith
+
+qiime feature-table tabulate-seqs \
+  --i-data rep-seqs.qza \
+  --o-visualization rep-seqs.qzv
+
+qiime diversity core-metrics-phylogenetic \
+  --i-phylogeny rooted-tree.qza \
+  --i-table table.qza \
+  --p-sampling-depth 1103 \
+  --m-metadata-file sample-metadata.tsv \
+  --output-dir core-metrics-results
+
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results/faith_pd_vector.qza \
+  --m-metadata-file sample-metadata.tsv \
+  --o-visualization core-metrics-results/faith-pd-group-significance.qzv
+
+qiime diversity beta-group-significance \
+  --i-distance-matrix core-metrics-results/unweighted_unifrac_distance_matrix.qza \
+  --m-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith \
+  --m-metadata-column alias \
+  --o-visualization core-metrics-results/unweighted-unifrac-body-site-significance.qzv \
+  --p-pairwise
+
+qiime emperor plot \
+--i-pcoa core-metrics-results/unweighted_unifrac_pcoa_results.qza \
+--m-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith \
+--o-visualization core-metrics-results/unweighted-unifrac-emperor-days-since-experiment-start.qzv
+
+qiime diversity alpha-rarefaction \   
+--i-table table.qza \   
+--i-phylogeny rooted-tree.qza \  
+--p-max-depth 4000 \  
+--m-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith \  
+--o-visualization alpha-rarefaction.qzv 
+
+qiime feature-classifier classify-sklearn \  
+--i-classifier gg-13-8-99-515-806-nb-classifier.qza \ 
+--i-reads rep-seqs.qza \  
+--o-classification taxonomy.qza \
+
+qiime taxa barplot \  
+--i-table table.qza \  
+--i-taxonomy taxonomy.qza \ 
+--m-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith \  
+--o-visualization taxa-bar-plots.qzv 
+
+qiime feature-table filter-features-conditionally \ 
+--i-table table.qza \ 
+--p-abundance 0.0005 \
+--p-prevalence 0.10 \
+--o-filtered-table ancomtable.qza
+
+qiime composition add-pseudocount
+--i-table ANCOM_0.005_0.05_Filter.qza
+
+ANCOM RUNS
+
+qiime feature-table filter-features-conditionally  --i-table table.qza  --p-abundance 0.005 --p-prevalence 0.25 --o-filtered-table ancomtable.qza
+qiime composition add-pseudocount --i-table ancomtable.qza --o-composition-table ancomtable-psuedo.qza
+qiime composition ancom --i-table ancomtable-psuedo.qza --m-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith --m-metadata-column alias --o-visualization ancom-visual.qzv
+cp ancom-visual.qzv /mnt/d
+qiime feature-table filter-features-conditionally  --i-table table.qza  --p-abundance 0.0005 --p-prevalence 0.25 --o-filtered-table ancomtable.qza
+qiime composition add-pseudocount --i-table ancomtable.qza --o-composition-table ancomtable-psuedo.qza
+qiime composition ancom --i-table ancomtable-psuedo.qza --m-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith --m-metadata-column alias --o-visualization ancom-visual.qzv
+cp ancom-visual.qzv /mnt/d
+qiime feature-table filter-features-conditionally  --i-table table.qza  --p-abundance 0.05 --p-prevalence 0.25 --o-filtered-table ancomtable.qza
+qiime composition add-pseudocount --i-table ancomtable.qza --o-composition-table ancomtable-psuedo.qza
+qiime composition ancom --i-table ancomtable-psuedo.qza --m-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith --m-metadata-column alias --o-visualization ancom-visual.qzv
+
+significant
+1) f5f5e0da89730462abaf6301a9557193 feature higher in healthy controls significantly (Faecalibacterium duncaniae)
+2) bed671b4676144142cebd192b690f499 Higher in MDD patients (Blautia faecis) 
+3) 59777186ad2e0947e97615b5d6225136 higher in healthy control (Faecalibacterium prausnitzii) 
+4) 0a68ec564e278b0246c920ad7de41880 Higher in MDD patients (Lachnospiraceae Blautia SC05B48)
+5) 742e1f191223f58590661de80b9d6e3b Higher in MDD patients (Lachnospiraceae Blautia SC05B48)
+
+barely significant
+6) c6c3ab4e828fb40d6e05967b7aac9338 higher in MDD (Blautia wexlerae)
+7) d76d59ec71de0e3b22da0c9cd564d41a higher in HC (Fusicatenibacter saccharivorans)
