@@ -79,7 +79,7 @@ qiime feature-table filter-features-conditionally \
 --p-prevalence 0.10 \
 --o-filtered-table ancomtable.qza
 
-qiime composition add-pseudocount
+qiime composition add-pseudocount \
 --i-table ANCOM_0.005_0.05_Filter.qza
 
 ANCOM RUNS
