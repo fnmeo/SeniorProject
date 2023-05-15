@@ -1,4 +1,4 @@
-+Import ManifestPhred33V2 Paired End Sequences Already Demultiplexed
+#Import ManifestPhred33V2 Paired End Sequences Already Demultiplexed
 
 qiime tools import \
   --type 'SampleData[PairedEndSequencesWithQuality]' \
@@ -6,13 +6,13 @@ qiime tools import \
   --output-path paired-end-demux.qza \
   --input-format PairedEndFastqManifestPhred33V2
 
-+Summarize import
+#Summarize import
 
 qiime demux summarize \
   --i-data paired-end-demux.qza \
   --o-visualization demux.qzv
 
-+denoising using dada2 
+#denoising using dada2 
 
 qiime dada2 denoise-paired \
   --i-demultiplexed-seqs paired-end-demux.qza \
@@ -82,19 +82,55 @@ qiime feature-table filter-features-conditionally \
 qiime composition add-pseudocount \
 --i-table ANCOM_0.005_0.05_Filter.qza
 
-ANCOM RUNS
+#ANCOM RUNS
 
-qiime feature-table filter-features-conditionally  --i-table table.qza  --p-abundance 0.005 --p-prevalence 0.25 --o-filtered-table ancomtable.qza
-qiime composition add-pseudocount --i-table ancomtable.qza --o-composition-table ancomtable-psuedo.qza
-qiime composition ancom --i-table ancomtable-psuedo.qza --m-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith --m-metadata-column alias --o-visualization ancom-visual.qzv
-cp ancom-visual.qzv /mnt/d
-qiime feature-table filter-features-conditionally  --i-table table.qza  --p-abundance 0.0005 --p-prevalence 0.25 --o-filtered-table ancomtable.qza
-qiime composition add-pseudocount --i-table ancomtable.qza --o-composition-table ancomtable-psuedo.qza
-qiime composition ancom --i-table ancomtable-psuedo.qza --m-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith --m-metadata-column alias --o-visualization ancom-visual.qzv
-cp ancom-visual.qzv /mnt/d
-qiime feature-table filter-features-conditionally  --i-table table.qza  --p-abundance 0.05 --p-prevalence 0.25 --o-filtered-table ancomtable.qza
-qiime composition add-pseudocount --i-table ancomtable.qza --o-composition-table ancomtable-psuedo.qza
-qiime composition ancom --i-table ancomtable-psuedo.qza --m-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith --m-metadata-column alias --o-visualization ancom-visual.qzv
+qiime feature-table filter-features-conditionally \
+--i-table table.qza \
+--p-abundance 0.005 \
+--p-prevalence 0.25 \
+--o-filtered-table ancomtable.qza
+
+qiime composition add-pseudocount \
+--i-table ancomtable.qza \
+--o-composition-table ancomtable-psuedo.qza
+
+qiime composition ancom \
+--i-table ancomtable-psuedo.qza \
+--m-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith \
+--m-metadata-column alias \
+--o-visualization ancom-visual.qzv
+
+qiime feature-table filter-features-conditionally  \
+--i-table table.qza  \
+--p-abundance 0.0005 \
+--p-prevalence 0.25 \
+--o-filtered-table ancomtable.qza
+
+qiime composition add-pseudocount \
+--i-table ancomtable.qza \
+--o-composition-table ancomtable-psuedo.qza
+
+qiime composition ancom \
+--i-table ancomtable-psuedo.qza \
+--m-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith \
+--m-metadata-column alias \
+--o-visualization ancom-visual.qzv
+
+qiime feature-table filter-features-conditionally  \
+--i-table table.qza  \
+--p-abundance 0.05 \
+--p-prevalence 0.25 \
+--o-filtered-table ancomtable.qza
+
+qiime composition add-pseudocount \
+--i-table ancomtable.qza \
+--o-composition-table ancomtable-psuedo.qza
+
+qiime composition ancom \
+--i-table ancomtable-psuedo.qza \
+--m-metadata-file /mnt/d/MicrobiomeFiles/ManifestWith \
+--m-metadata-column alias \
+--o-visualization ancom-visual.qzv
 
 significant
 1) f5f5e0da89730462abaf6301a9557193 feature higher in healthy controls significantly (Faecalibacterium duncaniae)
